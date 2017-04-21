@@ -90,6 +90,35 @@ function fire() {
 	soundEffect.play();
 }
 
+var mesh = null;
+var mixer = null;
+
+function initMesh() {
+	mixer = new THREE.AnimationMixer( scene );
+	var loader = new THREE.JSONLoader();
+
+    // var loader = new THREE.ObjectLoader();
+    loader.load('dino.js', function(geometry, materials) {
+
+    	var material = materials[ 0 ];
+		material.morphTargets = true;
+		material.color.setHex( 0xffaaaa );
+
+    	console.log('odel loaded');
+        mesh = new THREE.Mesh(geometry, materials);
+        mesh.position.z = -5000;
+        mesh.matrixAutoUpdate = false;
+        mesh.updateMatrix();
+        scene.add(mesh);
+
+        mixer.clipAction( geometry.animations[ 0 ], mesh )
+						.setDuration( 1 )			// one second
+						.startAt( - Math.random() )	// random phase (already running)
+						.play();					// let's go
+
+    });
+}
+
 document.body.onkeydown = function (e) {
 	if (e.repeat) return;
 	keys[e.keyCode] = true;
@@ -133,6 +162,9 @@ document.body.onkeyup = function (e) {
 }
 
 var container = document.querySelector('#canvas');
+
+var clock = new THREE.Clock();
+
 var width = parseInt(getComputedStyle(container).width);
 var height = parseInt(getComputedStyle(container).height);
 
@@ -146,7 +178,6 @@ var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 var scene = new THREE.Scene();
 
 scene.add(camera);
-
 
 // Set up the sphere vars
 const RADIUS = 50;
@@ -174,9 +205,6 @@ const sphere = new THREE.Mesh(
 // Move the Sphere back in Z so we
 // can see it.
 sphere.position.z = -300;
-
-// Finally, add the sphere to the scene.
-scene.add(sphere);
 
 
 var dotGeometry = new THREE.Geometry();
@@ -208,7 +236,10 @@ for (var i = 0; i < 10000; i++) {
 
 var dotMaterial = new THREE.PointsMaterial( { size: 1, sizeAttenuation: false } );
 var dot = new THREE.Points( dotGeometry, dotMaterial );
-scene.add(dot);
+
+// scene.add(sphere);
+initMesh();
+// scene.add(dot);
 
 // create a point light
 const pointLight =
@@ -249,19 +280,19 @@ var stats = new Stats();
 stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
 document.body.appendChild( stats.dom );
 
-function animate() {
-
-
-	// monitored code goes here
-
-
-	requestAnimationFrame( animate );
-
-}
-
-requestAnimationFrame( animate );
+var prevFrame = null;
 
 (function update() {
+	stats.begin();
+	if (prevFrame === null) {
+		prevFrame = Date.now();
+		requestAnimationFrame(update);
+		return;
+	}
+	var now = Date.now();
+	var elapsed = now - prevFrame;
+	prevFrame = now;
+
 	// dot.rotation.x = Date.now() * 0.001 + Math.PI;
 
 	// dots.applyMatrix(matrix);
@@ -271,6 +302,8 @@ requestAnimationFrame( animate );
 	dot.matrix = foo;
 
 	sphere.position.z = -300 + Math.sin(Date.now() * 0.001) * 200;
+
+	mixer.update( clock.getDelta() );
 
 	// var rotation = new THREE.Matrix4().makeRotationZ(Math.PI/2 + Date.now() * 0.1);
 	// dot.matrix.set(rotation);
@@ -287,7 +320,6 @@ requestAnimationFrame( animate );
 
 	// dot.matrix.
 
-	stats.begin();
 	renderer.render(scene, camera);
 	stats.end();
 	requestAnimationFrame(update);
