@@ -5,13 +5,19 @@
 	<link rel='stylesheet' href='game.css'>
 </head>
 <body>
+	<!-- gapless5 needs these to hold sounds -->
+	<div id="music" style="display:none"></div>
+	<div id="soundEffect" style="display:none"></div>
+
 	<div id='game'>
 		<div id='container'>
 			<!-- <div id='gameName'>subscription offers</div> -->
 			<div id='canvas'></div>
 		</div>
 	</div>
-	<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.js'></script>
+	<script src="jquery-1.7.1.min.js"></script>
+	<script src="gapless5.js"></script>
+	<script src='three.js'></script>
 	<script src='stats.min.js'></script>
 	<script src='game.js'></script>
 </body>

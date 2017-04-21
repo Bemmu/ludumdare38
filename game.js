@@ -2,6 +2,74 @@ if (!window.console) {
 	console = {log : function (str) { }};
 }
 
+var music = null;
+var soundEffect = null;
+
+var beatPositions = [0, 1000, 2000, 3000, 4000];
+var beatIndex = 0;
+
+var prevMusicPos = null;
+var prevBeat = null;
+
+var loops = [
+	[0, 3990],
+	[7500, 8000 + 3990]
+];
+
+var loopStart = loops[1][0];
+var loopEnd = loops[1][1];
+
+$(function () {
+	music = new Gapless5("music", {
+		loop: true, 
+		tracks: "song.wav"
+	});
+	soundEffect = new Gapless5("soundEffect", {
+		loop: false, 
+		tracks: "soundEffect.wav"
+	});
+
+	// music.play();
+	// setInterval(function () {
+	// 	musicEvents();
+	// }, 0);
+	// me.music.scrub(me.loopStart);
+});
+
+function beat() {
+	console.log("beat");
+}
+
+var musicEvents = function() {
+	var pos = music.mgr.sources[0].getPosition();
+	if (prevMusicPos === null) {
+		prevMusicPos = pos;
+		return;
+	}
+
+	// Looped around?
+	if (pos < prevMusicPos) {
+		beatIndex = 0;
+	}
+
+	var len = music.mgr.sources[0].getLength();
+	r = pos;
+
+	var thisBeat = Math.floor((pos - loopStart) / 500); // 120 bpm = 2 bps
+	if (thisBeat != prevBeat) {
+		// l(thisBeat);
+		if ((thisBeat % 1) === 0) {
+			beat();
+		}
+
+	}
+	prevBeat = thisBeat;
+
+	prevMusicPos = pos;
+};
+
+// music.setGain(0);
+
 var keys = {};
 var input = {
 	x: 0,
@@ -16,6 +84,11 @@ var UP = 38, LEFT = 37, DOWN = 40, RIGHT = 39;
 function logInputState() {
 	console.log('x = ' + input.x + ', y = ' + input.y + ', fire = ' + input.fire);
 };
+
+function fire() {
+	soundEffect.scrub(0);
+	soundEffect.play();
+}
 
 document.body.onkeydown = function (e) {
 	if (e.repeat) return;
@@ -35,6 +108,7 @@ document.body.onkeydown = function (e) {
 	}
 	if (e.keyCode == Z || e.keyCode == SPACE) {
 		input.fire = true;
+		fire();
 	}
 	logInputState();
 }
