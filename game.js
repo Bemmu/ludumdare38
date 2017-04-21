@@ -2,6 +2,62 @@ if (!window.console) {
 	console = {log : function (str) { }};
 }
 
+var keys = {};
+var input = {
+	x: 0,
+	y: 0,
+	fire: false
+};
+
+var W = 87, A = 65, S = 83, D = 68;
+var SPACE = 32, Z = 90;
+var UP = 38, LEFT = 37, DOWN = 40, RIGHT = 39;
+
+function logInputState() {
+	console.log('x = ' + input.x + ', y = ' + input.y + ', fire = ' + input.fire);
+};
+
+document.body.onkeydown = function (e) {
+	if (e.repeat) return;
+	keys[e.keyCode] = true;
+
+	if (e.keyCode == A || e.keyCode == LEFT) {
+		input.x = -1;
+	}
+	if (e.keyCode == D || e.keyCode == RIGHT) {
+		input.x = 1;
+	}
+	if (e.keyCode == W || e.keyCode == UP) {
+		input.y = -1;
+	}
+	if (e.keyCode == S || e.keyCode == DOWN) {
+		input.y = 1;
+	}
+	if (e.keyCode == Z || e.keyCode == SPACE) {
+		input.fire = true;
+	}
+	logInputState();
+}
+document.body.onkeyup = function (e) {
+	if (input.x == -1 && (e.keyCode == A || e.keyCode == LEFT)) {
+		input.x = 0;
+	}
+	if (input.x == 1 && (e.keyCode == D || e.keyCode == RIGHT)) {
+		input.x = 0;
+	}
+	if (input.y == -1 && (e.keyCode == W || e.keyCode == UP)) {
+		input.y = 0;
+	}
+	if (input.y == 1 && (e.keyCode == S || e.keyCode == DOWN)) {
+		input.y = 0;
+	}
+	if (input.fire == true && (e.keyCode == Z || e.keyCode == SPACE)) {
+		input.fire = false;
+	}
+	delete keys[e.keyCode];
+	logInputState();
+}
+
 var container = document.querySelector('#canvas');
 var width = parseInt(getComputedStyle(container).width);
 var height = parseInt(getComputedStyle(container).height);
